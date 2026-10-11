@@ -11,7 +11,7 @@ import { deleteObject, getDownloadURL, ref, uploadBytes } from "https://www.gsta
 import { initializeLocationPicker } from "./location-picker.js";
 
 const page = document.body.dataset.page;
-const pageStatus = document.getElementById("page-status");
+const pageStatus = document.getElementById("page-status") || document.getElementById("list-status");
 let firebase;
 let firebaseInitializationError = null;
 let currentUser = null;
@@ -662,31 +662,29 @@ async function loadPendingPosts(user, authorizedAdmin) {
 		const actions = document.createElement("div");
 		actions.className = "admin-actions";
 
-		if (passedAutoCheck) {
-			const approve = document.createElement("button");
-			approve.type = "button";
-			approve.className = "button button-green";
-			approve.textContent = "Approve করে প্রকাশ করুন";
-			approve.addEventListener("click", async () => {
-				approve.disabled = true;
-				setStatus("বিজ্ঞপ্তিটি যাচাই করে প্রকাশ করা হচ্ছে...");
-				try {
-					await updateDoc(doc(firebase.db, "posts", post.id), {
-						verified: true,
-						verifiedBy: user.uid,
-						verifiedAt: serverTimestamp()
-					});
-					wrapper.remove();
-					if (pendingCount) pendingCount.textContent = String(list.children.length);
-					setStatus("বিজ্ঞপ্তিটি প্রকাশ করা হয়েছে।");
-					if (!list.children.length) setStatus("যাচাইয়ের অপেক্ষায় কোনো বিজ্ঞপ্তি নেই।");
-				} catch (error) {
-					approve.disabled = false;
-					setStatus(displayError(error, "বিজ্ঞপ্তিটি যাচাই করা যায়নি। আবার চেষ্টা করুন।"), true);
-				}
-			});
-			actions.append(approve);
-		}
+		const approve = document.createElement("button");
+		approve.type = "button";
+		approve.className = "button button-green";
+		approve.textContent = passedAutoCheck ? "যাচাই করে প্রকাশ করুন" : "পর্যালোচনা করে প্রকাশ করুন";
+		approve.addEventListener("click", async () => {
+			approve.disabled = true;
+			setStatus("বিজ্ঞপ্তিটি যাচাই করে প্রকাশ করা হচ্ছে...");
+			try {
+				await updateDoc(doc(firebase.db, "posts", post.id), {
+					verified: true,
+					verifiedBy: user.uid,
+					verifiedAt: serverTimestamp()
+				});
+				wrapper.remove();
+				if (pendingCount) pendingCount.textContent = String(list.children.length);
+				setStatus("বিজ্ঞপ্তিটি প্রকাশ করা হয়েছে।");
+				if (!list.children.length) setStatus("যাচাইয়ের অপেক্ষায় কোনো বিজ্ঞপ্তি নেই।");
+			} catch (error) {
+				approve.disabled = false;
+				setStatus(displayError(error, "বিজ্ঞপ্তিটি যাচাই করা যায়নি। আবার চেষ্টা করুন।"), true);
+			}
+		});
+		actions.append(approve);
 
 		if (!passedAutoCheck) {
 			const reject = document.createElement("button");
@@ -716,7 +714,7 @@ async function loadPendingPosts(user, authorizedAdmin) {
 	setStatus(`${posts.length}টি বিজ্ঞপ্তি যাচাইয়ের অপেক্ষায় আছে।`);
 }
 
-async function loadDonations(user, authorizedAdmin) {
+async function loadDonations(authorizedAdmin) {
 	const list = document.getElementById("donation-list");
 	const status = document.getElementById("donation-admin-status");
 	const donationCount = document.getElementById("donation-count");
@@ -780,7 +778,7 @@ async function start() {
 	initializeDonateModal();
 
 	try {
-		firebase = await import("./firebase.js");
+		firebase = await import("./firebase-config.js");
 	} catch (error) {
 		firebaseInitializationError = error;
 		console.error("Firebase initialization failed", error);
@@ -830,7 +828,7 @@ async function start() {
 					return;
 				}
 				await loadPendingPosts(user, true);
-				await loadDonations(user, true);
+				await loadDonations(true);
 			}
 		} catch (error) {
 			setStatus(displayError(error, "তথ্য লোড করা যায়নি। Firebase Security Rules ও সংযোগ পরীক্ষা করুন।"), true);
