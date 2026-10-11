@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<title>হারানো বিজ্ঞপ্তি দিন — আমার আপনজন</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="report-lost">
+	<header class="site-header">
+		<a class="brand" href="index.html">
+			<img src="logo%20(2).png" alt="">
+			<span class="brand-name">আমার আপনজন</span>
+		</a>
+		<a class="text-link" href="index.html">হোমে ফিরুন</a>
+	</header>
+	<main class="form-layout">
+		<section class="form-intro">
+			<h1>আপনজনকে খুঁজে পেতে তথ্য দিন</h1>
+			<p>যতটা সম্ভব পরিষ্কার ও সঠিক তথ্য দিন। পোস্টটি প্রকাশের আগে এডমিন যাচাই করবেন।</p>
+			<p class="field-hint">ব্যক্তির নিরাপত্তার কথা বিবেচনা করে সংবেদনশীল তথ্য দেবেন না। জরুরি পরিস্থিতিতে স্থানীয় আইনশৃঙ্খলা বাহিনীর সঙ্গেও যোগাযোগ করুন।</p>
+		</section>
+		<section class="panel form-panel">
+			<a class="back-link" href="index.html">← হোমে ফিরুন</a>
+			<h2>হারানো ব্যক্তির তথ্য</h2>
+			<p class="panel-intro">তারকা (*) চিহ্নিত তথ্যগুলো আবশ্যক। ছবি ঐচ্ছিক, সর্বোচ্চ ৫ MB।</p>
+			<form id="report-form" class="form-stack">
+				<label class="field-label" for="report-image">ছবি
+					<input class="field file-field" id="report-image" type="file" accept="image/*">
+				</label>
+				<img class="preview" id="image-preview" alt="ছবির পূর্বরূপ" hidden>
+				<label class="field-label" for="name">নাম *
+					<input class="field" id="name" name="name" maxlength="100" autocomplete="off" placeholder="হারানো ব্যক্তির নাম" required>
+				</label>
+				<label class="field-label" for="age">বয়স
+					<input class="field" id="age" name="age" type="number" min="0" max="150" placeholder="আনুমানিক বয়স">
+				</label>
+				<label class="field-label" for="address">ঠিকানা
+					<input class="field" id="address" name="address" maxlength="200" autocomplete="street-address" placeholder="ব্যক্তির ঠিকানা">
+				</label>
+				<fieldset class="location-picker" data-location-picker data-required="true">
+					<legend>শেষ কোথায় দেখা গেছে *</legend>
+					<p class="field-hint">বিভাগ, জেলা ও উপজেলা/থানা নির্বাচন করুন। নিচে গ্রাম/ইউনিয়ন/ওয়ার্ড লিখতে পারেন।</p>
+					<div class="location-picker-grid">
+						<label class="field-label">বিভাগ
+							<select class="field" data-location-level="division" aria-label="শেষ দেখা গেছে — বিভাগ"></select>
+						</label>
+						<label class="field-label">জেলা
+							<select class="field" data-location-level="district" aria-label="শেষ দেখা গেছে — জেলা" disabled></select>
+						</label>
+						<label class="field-label">উপজেলা/থানা
+							<select class="field" data-location-level="upazila" aria-label="শেষ দেখা গেছে — উপজেলা/থানা" disabled></select>
+						</label>
+						<label class="field-label">গ্রাম/ইউনিয়ন/ওয়ার্ড (ঐচ্ছিক)
+							<input class="field" data-location-level="village" maxlength="100" placeholder="এলাকা বা পরিচিত স্থান" disabled>
+						</label>
+					</div>
+					<input type="hidden" name="lastSeen" data-location-value>
+					<input type="hidden" name="lastSeenLocation" data-location-details>
+					<p class="status location-picker-status" data-location-status aria-live="polite"></p>
+				</fieldset>
+				<label class="field-label" for="dress">কী পোশাক পরা ছিল
+					<input class="field" id="dress" name="dress" maxlength="200" placeholder="পোশাকের বিবরণ">
+				</label>
+				<label class="field-label" for="description">বিস্তারিত বিবরণ
+					<textarea class="field" id="description" name="desc" maxlength="1500" placeholder="চেনার জন্য সহায়ক তথ্য লিখুন"></textarea>
+				</label>
+				<p class="status" id="page-status" aria-live="polite"></p>
+				<button class="button" type="submit">বিজ্ঞপ্তি জমা দিন</button>
+			</form>
+		</section>
+	</main>
+	<script type="module" src="app.js"></script>
+</body>
+</html>

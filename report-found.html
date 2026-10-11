@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<title>খুঁজে পাওয়া বিজ্ঞপ্তি — আমার আপনজন</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="report-found">
+	<header class="site-header">
+		<a class="brand" href="index.html">
+			<img src="logo%20(2).png" alt="">
+			<span class="brand-name">আমার আপনজন</span>
+		</a>
+		<a class="text-link" href="index.html">হোমে ফিরুন</a>
+	</header>
+	<main class="form-layout">
+		<section class="form-intro">
+			<h1>কাউকে পেলে পরিবারের কাছে ফিরিয়ে দিন</h1>
+			<p>পাওয়া ব্যক্তির অবস্থান ও পরিচিতির তথ্য দিন। পোস্টটি প্রকাশের আগে এডমিন যাচাই করবেন।</p>
+			<p class="field-hint">ব্যক্তির নিরাপত্তা ও মর্যাদার কথা মাথায় রেখে সংবেদনশীল তথ্য প্রকাশ করবেন না।</p>
+		</section>
+		<section class="panel form-panel">
+			<a class="back-link" href="index.html">← হোমে ফিরুন</a>
+			<h2>খুঁজে পাওয়া ব্যক্তির তথ্য</h2>
+			<p class="panel-intro">তারকা (*) চিহ্নিত তথ্যগুলো আবশ্যক। ছবি ঐচ্ছিক, সর্বোচ্চ ৫ MB।</p>
+			<form id="report-form" class="form-stack">
+				<label class="field-label" for="report-image">ব্যক্তির ছবি
+					<input class="field file-field" id="report-image" type="file" accept="image/*">
+				</label>
+				<img class="preview" id="image-preview" alt="ছবির পূর্বরূপ" hidden>
+				<label class="field-label" for="name">নাম (যদি জানা থাকে)
+					<input class="field" id="name" name="name" maxlength="100" placeholder="ব্যক্তির নাম">
+				</label>
+				<label class="field-label" for="age">আনুমানিক বয়স
+					<input class="field" id="age" name="age" type="number" min="0" max="150" placeholder="আনুমানিক বয়স">
+				</label>
+				<label class="field-label" for="description">চেনার জন্য বিস্তারিত তথ্য
+					<textarea class="field" id="description" name="desc" maxlength="1500" placeholder="পরিচয় বা পরিবারের খোঁজে সহায়ক তথ্য লিখুন"></textarea>
+				</label>
+				<fieldset class="location-picker" data-location-picker>
+					<legend>এখন কোথায় আছেন (ঐচ্ছিক)</legend>
+					<p class="field-hint">জানা থাকলে বিভাগের তালিকা থেকে বর্তমান অবস্থান নির্বাচন করুন।</p>
+					<div class="location-picker-grid">
+						<label class="field-label">বিভাগ
+							<select class="field" data-location-level="division" aria-label="বর্তমান অবস্থান — বিভাগ"></select>
+						</label>
+						<label class="field-label">জেলা
+							<select class="field" data-location-level="district" aria-label="বর্তমান অবস্থান — জেলা" disabled></select>
+						</label>
+						<label class="field-label">উপজেলা/থানা
+							<select class="field" data-location-level="upazila" aria-label="বর্তমান অবস্থান — উপজেলা/থানা" disabled></select>
+						</label>
+						<label class="field-label">গ্রাম/ইউনিয়ন/ওয়ার্ড (ঐচ্ছিক)
+							<input class="field" data-location-level="village" maxlength="100" placeholder="এলাকা বা পরিচিত স্থান" disabled>
+						</label>
+					</div>
+					<input type="hidden" name="currentLocation" data-location-value>
+					<input type="hidden" name="currentLocationDetails" data-location-details>
+					<p class="status location-picker-status" data-location-status aria-live="polite"></p>
+				</fieldset>
+				<fieldset class="location-picker" data-location-picker data-required="true">
+					<legend>কোথায় পাওয়া গেছে *</legend>
+					<p class="field-hint">বিভাগ, জেলা ও উপজেলা/থানা নির্বাচন করুন। নিচে গ্রাম/ইউনিয়ন/ওয়ার্ড লিখতে পারেন।</p>
+					<div class="location-picker-grid">
+						<label class="field-label">বিভাগ
+							<select class="field" data-location-level="division" aria-label="পাওয়া গেছে — বিভাগ"></select>
+						</label>
+						<label class="field-label">জেলা
+							<select class="field" data-location-level="district" aria-label="পাওয়া গেছে — জেলা" disabled></select>
+						</label>
+						<label class="field-label">উপজেলা/থানা
+							<select class="field" data-location-level="upazila" aria-label="পাওয়া গেছে — উপজেলা/থানা" disabled></select>
+						</label>
+						<label class="field-label">গ্রাম/ইউনিয়ন/ওয়ার্ড (ঐচ্ছিক)
+							<input class="field" data-location-level="village" maxlength="100" placeholder="এলাকা বা পরিচিত স্থান" disabled>
+						</label>
+					</div>
+					<input type="hidden" name="foundLocation" data-location-value>
+					<input type="hidden" name="foundLocationDetails" data-location-details>
+					<p class="status location-picker-status" data-location-status aria-live="polite"></p>
+				</fieldset>
+				<p class="status" id="page-status" aria-live="polite"></p>
+				<button class="button button-green" type="submit">বিজ্ঞপ্তি জমা দিন</button>
+			</form>
+		</section>
+	</main>
+	<script type="module" src="app.js"></script>
+</body>
+</html>

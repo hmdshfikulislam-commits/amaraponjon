@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.email
+          == request.auth.token.email;
+    }
+
+    match /admins/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list, create, update, delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if isAdmin()
+        || (signedIn()
+          && (resource.data.verified == true
+            || resource.data.createdBy == request.auth.uid));
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "type", "name", "age", "address", "lastSeen", "dress", "desc",
+          "currentLocation", "foundLocation", "location",
+          "imagePath", "createdBy", "createdAt", "verified",
+          "lastSeenLocation", "foundLocationDetails", "currentLocationDetails",
+          "pendingReason"
+        ])
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.verified == false;
+
+      allow update: if isAdmin()
+        && resource.data.verified == false
+        && request.resource.data.verified == true
+        && request.resource.data.verifiedBy == request.auth.uid
+        && request.resource.data.verifiedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["verified", "verifiedBy", "verifiedAt"]);
+
+      allow delete: if isAdmin();
+    }
+
+    match /donations/{donationId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "amount", "trxId", "paymentMethod", "showName", "donorName",
+          "donorUid", "donorEmail", "createdAt", "status"
+        ])
+        && request.resource.data.donorUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.status == "pending";
+
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}

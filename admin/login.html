@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<title>Admin Login — আমার আপনজন</title>
+	<link rel="stylesheet" href="../styles.css">
+</head>
+<body data-page="admin-login">
+	<main class="auth-layout">
+		<section class="auth-intro">
+			<a class="brand" href="../index.html">
+				<img src="../logo%20(2).png" alt="">
+				<span class="brand-name">আমার আপনজন</span>
+			</a>
+			<h1 id="admin-login-title">নিরাপদ Admin প্রবেশ</h1>
+			<p>শুধু Firebase-এ অনুমোদিত ও email-যাচাইকৃত administrator বিজ্ঞপ্তি যাচাই এবং ব্যক্তিগত ডোনেশন তথ্য পরিচালনা করতে পারবেন।</p>
+		</section>
+		<section class="form-panel panel" aria-labelledby="admin-login-title">
+			<h2>Admin Login</h2>
+			<p class="panel-intro">আপনার অনুমোদিত email ও password দিয়ে প্রবেশ করুন।</p>
+			<form class="form-stack" id="admin-login-form">
+				<label class="field-label" for="admin-email">Admin email
+					<input class="field" id="admin-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="আপনার অনুমোদিত email">
+				</label>
+				<label class="field-label" for="admin-password">Password
+					<input class="field" id="admin-password" name="password" type="password" autocomplete="current-password" required minlength="6" maxlength="128" placeholder="Password লিখুন">
+				</label>
+				<button class="button" id="admin-login-submit" type="submit">নিরাপদে লগইন করুন</button>
+			</form>
+			<button class="text-link" id="admin-password-reset" type="button">Password reset email পাঠান</button>
+			<p class="status" id="page-status" role="status" aria-live="polite">Firebase Admin Authentication setup প্রয়োজন।</p>
+			<a class="back-link" href="../index.html">← হোম পেজে ফিরে যান</a>
+		</section>
+	</main>
+	<script type="module" src="../app.js"></script>
+</body>
+</html>

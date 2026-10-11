@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.email
+          == request.auth.token.email;
+    }
+
+    match /post-images/{userId}/{postId} {
+      allow read: if signedIn()
+        && (isAdmin()
+          || firestore.get(/databases/(default)/documents/posts/$(postId)).data.createdBy == request.auth.uid
+          || firestore.get(/databases/(default)/documents/posts/$(postId)).data.verified == true);
+
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+
+      allow update: if false;
+      allow delete: if signedIn() && (isAdmin() || request.auth.uid == userId);
+    }
+  }
+}

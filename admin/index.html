@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<title>Admin Dashboard — আমার আপনজন</title>
+	<link rel="stylesheet" href="../styles.css">
+</head>
+<body data-page="admin">
+	<header class="site-header">
+		<a class="brand" href="../index.html">
+			<img src="../logo%20(2).png" alt="">
+			<span class="brand-name">আমার আপনজন</span>
+		</a>
+		<div class="account">
+			<span class="account-email" id="account-email"></span>
+			<a class="button button-light" href="../index.html">হোম পেজ</a>
+			<button class="button button-light" id="logout-button" type="button">লগআউট</button>
+		</div>
+	</header>
+	<main class="home-main">
+		<section class="admin-welcome">
+			<div>
+				<p class="admin-eyebrow">ADMIN WORKSPACE</p>
+				<h1>ড্যাশবোর্ড</h1>
+				<p>বিজ্ঞপ্তি যাচাই করুন, কমিউনিটির আপডেট দেখুন এবং সহায়তার তথ্য পরিচালনা করুন।</p>
+			</div>
+			<a class="button button-green admin-review-link" href="#pending-section">যাচাই শুরু করুন <span aria-hidden="true">↓</span></a>
+		</section>
+
+		<section class="admin-overview" aria-label="ড্যাশবোর্ড সারসংক্ষেপ">
+			<a class="admin-stat-card admin-stat-pending" href="#pending-section">
+				<span class="admin-stat-icon" aria-hidden="true">✓</span>
+				<span class="admin-stat-label">যাচাই অপেক্ষমাণ</span>
+				<strong class="admin-stat-value" id="pending-count">—</strong>
+				<span class="admin-stat-foot">বিজ্ঞপ্তি পর্যালোচনা করুন <span aria-hidden="true">→</span></span>
+			</a>
+			<a class="admin-stat-card admin-stat-donations" href="#donations-section">
+				<span class="admin-stat-icon" aria-hidden="true">♡</span>
+				<span class="admin-stat-label">ডোনেশন রেকর্ড</span>
+				<strong class="admin-stat-value" id="donation-count">—</strong>
+				<span class="admin-stat-foot">সর্বশেষ তথ্য দেখুন <span aria-hidden="true">→</span></span>
+			</a>
+			<div class="admin-stat-card admin-stat-process">
+				<span class="admin-stat-icon" aria-hidden="true">⌁</span>
+				<span class="admin-stat-label">মডারেশন প্রক্রিয়া</span>
+				<strong class="admin-process-value">পর্যালোচনা → প্রকাশ</strong>
+				<span class="admin-stat-foot">অনুমোদনের পরেই বিজ্ঞপ্তি প্রকাশিত হয়</span>
+			</div>
+		</section>
+
+		<section class="list-section admin-section" id="pending-section">
+			<div class="section-heading">
+				<div>
+					<p class="admin-section-kicker">MODERATION</p>
+					<h2 id="admin-title">বিজ্ঞপ্তি যাচাই</h2>
+					<p>প্রতিটি বিজ্ঞপ্তি দেখে যাচাইয়ের পর প্রকাশ করুন।</p>
+				</div>
+				<span class="admin-section-icon" aria-hidden="true">✓</span>
+			</div>
+			<p class="status" id="page-status" aria-live="polite">যাচাইয়ের অপেক্ষায় থাকা বিজ্ঞপ্তি লোড হচ্ছে...</p>
+			<div class="admin-list" id="pending-list"></div>
+		</section>
+		<section class="list-section admin-section admin-donations-section" id="donations-section" aria-labelledby="donations-title">
+			<div class="section-heading">
+				<div>
+					<p class="admin-section-kicker">COMMUNITY SUPPORT</p>
+					<h2 id="donations-title">ডোনেশন তথ্য</h2>
+					<p>ব্যক্তিগত লেনদেনের রেকর্ড—শুধু অনুমোদিত Admin দেখতে পারবেন।</p>
+				</div>
+				<span class="admin-section-icon admin-section-icon-green" aria-hidden="true">♡</span>
+			</div>
+			<p class="status" id="donation-admin-status" aria-live="polite">ডোনেশন তথ্য লোড হচ্ছে...</p>
+			<div class="admin-list" id="donation-list"></div>
+		</section>
+	</main>
+	<script type="module" src="../app.js"></script>
+</body>
+</html>

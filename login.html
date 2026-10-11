@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<title>Email দিয়ে প্রবেশ — আমার আপনজন</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="login">
+	<header class="site-header">
+		<a class="brand" href="index.html">
+			<img src="logo%20(2).png" alt="">
+			<span class="brand-name">আমার আপনজন</span>
+		</a>
+		<a class="text-link" href="index.html">হোমে ফিরুন</a>
+	</header>
+	<main class="auth-layout">
+		<section class="auth-intro">
+			<h1>আপনজনের খোঁজে<br>আপনিও পাশে থাকুন</h1>
+			<p>Email দিয়ে নিরাপদে প্রবেশ করুন। বিজ্ঞপ্তি দিন, যাচাইকৃত খোঁজ দেখুন এবং প্রয়োজনে পরিবারের সঙ্গে যোগাযোগ করুন।</p>
+			<ul class="auth-points">
+				<li>Email ও password দিয়ে প্রবেশ বা নতুন account তৈরি</li>
+				<li>Google account দিয়ে দ্রুত প্রবেশ</li>
+				<li>যাচাইকৃত বিজ্ঞপ্তির তালিকা</li>
+				<li>আপনার তথ্য দায়িত্বের সঙ্গে ব্যবহার</li>
+			</ul>
+		</section>
+		<section class="panel" aria-labelledby="login-heading">
+			<h2 id="login-heading">Email দিয়ে প্রবেশ</h2>
+			<p class="panel-intro" id="auth-mode-description">আপনার email ও password দিয়ে লগইন করুন।</p>
+			<form id="email-auth-form" class="form-stack">
+				<label class="field-label" for="visitor-email">Email
+					<input class="field" id="visitor-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="আপনার email লিখুন" required>
+				</label>
+				<label class="field-label" for="visitor-password">Password
+					<input class="field" id="visitor-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="128" placeholder="Password লিখুন" required>
+				</label>
+				<button class="button" id="email-auth-submit" type="submit">লগইন করুন</button>
+			</form>
+			<button class="text-link" id="auth-mode-toggle" type="button">নতুন account? রেজিস্ট্রেশন করুন</button>
+			<p class="panel-intro auth-divider">অথবা</p>
+			<button class="button button-light" id="google-sign-in" type="button">Continue with Google</button>
+			<p class="status" id="page-status" aria-live="polite">Firebase Authentication সেটআপ প্রয়োজন।</p>
+		</section>
+	</main>
+	<script type="module" src="app.js"></script>
+</body>
+</html>

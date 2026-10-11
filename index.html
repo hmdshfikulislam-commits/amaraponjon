@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f2f8f6">
+	<meta name="description" content="হারানো মানুষকে খুঁজে পেতে এবং খুঁজে পাওয়া ব্যক্তির পরিবারের সঙ্গে যোগাযোগ করতে আমার আপনজন ব্যবহার করুন।">
+	<title>আমার আপনজন — হারানো মানুষকে খুঁজুন</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+	<header class="site-header">
+		<a class="brand" href="index.html" aria-label="আমার আপনজন হোম">
+			<img src="logo%20(2).png" alt="">
+			<span class="brand-name">আমার আপনজন</span>
+		</a>
+		<div class="account">
+			<span class="account-email" id="account-email"></span>
+			<a class="button button-light" href="admin/index.html" id="admin-link" hidden>এডমিন প্যানেল</a>
+			<button class="button button-light" id="logout-button" type="button">লগআউট</button>
+		</div>
+	</header>
+
+	<main class="home-main">
+		<section class="hero">
+			<img class="hero-logo" src="logo%20(2).png" alt="দুই হাত ও ভাঙা হৃদয়ের লোগো">
+			<p class="hero-eyebrow">মানবিক সহায়তায়, আপনজনের খোঁজে</p>
+			<h1>আমার আপনজন</h1>
+			<p class="hero-copy">হারিয়ে যাওয়া মানুষকে খুঁজে পেতে, অথবা কাউকে খুঁজে পেলে তার পরিবারের কাছে ফিরিয়ে দিতে একসাথে এগিয়ে আসুন।</p>
+		</section>
+
+		<nav class="action-grid" aria-label="বিজ্ঞপ্তি দিন">
+			<a class="action-card lost" href="report-lost.html">
+				<span class="action-icon" aria-hidden="true">♡</span>
+				<span>
+					<h2 class="action-title">হারানো বিজ্ঞপ্তি দিন</h2>
+					<p class="action-caption">আপনজনকে খুঁজে পেতে তথ্য শেয়ার করুন</p>
+				</span>
+			</a>
+			<a class="action-card found" href="report-found.html">
+				<span class="action-icon" aria-hidden="true">⌕</span>
+				<span>
+					<h2 class="action-title">খুঁজে পাওয়া বিজ্ঞপ্তি</h2>
+					<p class="action-caption">কাউকে পেলে তার পরিবারের সঙ্গে যোগাযোগে সাহায্য করুন</p>
+				</span>
+			</a>
+		</nav>
+
+		<section class="list-section" aria-labelledby="list-title">
+			<div class="section-heading">
+				<div>
+					<h2 id="list-title">সাম্প্রতিক বিজ্ঞপ্তি</h2>
+					<p>যাচাইকৃত হারানো ও খুঁজে পাওয়া ব্যক্তিদের তালিকা</p>
+				</div>
+			</div>
+			<p class="status success-notice" id="submission-notice" hidden>বিজ্ঞপ্তিটি জমা হয়েছে। এডমিন যাচাইয়ের পর এটি তালিকায় প্রকাশিত হবে।</p>
+			<label class="search-box">
+				<span class="search-icon" aria-hidden="true">⌕</span>
+				<input id="post-search" type="search" autocomplete="off" placeholder="নাম বা এলাকা দিয়ে খুঁজুন" aria-label="বিজ্ঞপ্তি খুঁজুন">
+			</label>
+			<p class="status" id="list-status" aria-live="polite">বিজ্ঞপ্তি লোড হচ্ছে...</p>
+			<div class="post-grid" id="post-list"></div>
+		</section>
+		<footer class="footer">মানবিক সহায়তায়, আপনজনের খোঁজে।</footer>
+	</main>
+	<button class="donate-trigger" id="donate-open" type="button" aria-haspopup="dialog" aria-controls="donate-dialog">
+		<span aria-hidden="true">♥</span> Donate করুন
+	</button>
+	<dialog class="donate-dialog" id="donate-dialog" aria-labelledby="donate-title" aria-describedby="donate-description">
+		<div class="donate-panel">
+			<button class="donate-close-icon" id="donate-close-icon" type="button" aria-label="ডোনেশন উইন্ডো বন্ধ করুন">×</button>
+			<div class="donate-heart" aria-hidden="true">♥</div>
+			<section id="donate-method-step" aria-labelledby="donate-title">
+				<p class="donate-eyebrow">আপনার সহযোগিতাই আমাদের শক্তি</p>
+				<h2 id="donate-title">আমার আপনজন-কে সহযোগিতা করুন</h2>
+				<p class="donate-description" id="donate-description">আপনার সহায়তা হারানো মানুষকে পরিবারের কাছে ফিরিয়ে দেওয়ার কাজে আমাদের পাশে থাকবে।</p>
+				<details class="donate-purpose">
+					<summary>
+						<span><span aria-hidden="true">🤲</span> কেন আমাদেরকে ডোনেট করবেন?</span>
+						<span class="donate-purpose-chevron" aria-hidden="true">▼</span>
+					</summary>
+					<div class="donate-purpose-content">
+						<p><strong>আমার আপনজন</strong> একটি সম্পূর্ণ অলাভজনক মানবিক উদ্যোগ। আমরা কোনো সার্ভিস চার্জ নিই না।</p>
+						<ul>
+							<li><strong>ওয়েবসাইট ও Firebase:</strong> সাইট চালু রাখা এবং প্রযুক্তিগত খরচ।</li>
+							<li><strong>তথ্য যাচাই:</strong> হারানো ব্যক্তির তথ্য যাচাইয়ে ফোন ও যাতায়াতের খরচ।</li>
+							<li><strong>সচেতনতা ও প্রচার:</strong> বিজ্ঞপ্তি আরও মানুষের কাছে পৌঁছে দেওয়া।</li>
+						</ul>
+						<p>আপনার ১০০ টাকাও একজনকে পরিবারের কাছে ফিরিয়ে দেওয়ার প্রচেষ্টায় সহায়ক হতে পারে।</p>
+						<p class="donate-purpose-prayer">আল্লাহ আপনার দান কবুল করুন।</p>
+					</div>
+				</details>
+				<div class="donate-tabs" role="tablist" aria-label="ডোনেশন পাঠানোর স্থান">
+					<button class="donate-tab active" id="donate-tab-bd" type="button" role="tab" aria-selected="true" aria-controls="donate-panel-bd">🇧🇩 দেশ থেকে</button>
+					<button class="donate-tab" id="donate-tab-expat" type="button" role="tab" aria-selected="false" aria-controls="donate-panel-expat" tabindex="-1">🌍 প্রবাস থেকে</button>
+				</div>
+				<div class="donate-tab-panel" id="donate-panel-bd" role="tabpanel" aria-labelledby="donate-tab-bd">
+					<div class="donate-wallet-card">
+						<p class="donate-wallet-heading">মোবাইল ব্যাংকিংয়ে পাঠান</p>
+						<div class="donate-wallet-brands" aria-label="গ্রহণযোগ্য মোবাইল ব্যাংকিং">
+							<span class="donate-wallet-brand bkash">bKash</span>
+							<span class="donate-wallet-brand nagad">নগদ</span>
+							<span class="donate-wallet-brand upay">upay</span>
+							<span class="donate-wallet-brand rocket">রকেট</span>
+						</div>
+						<p class="donate-wallet-recipient">হিসাবের নাম <strong>MD SHFIKUL ISLAM</strong></p>
+						<div class="donate-wallet-number-row">
+							<b class="donate-wallet-number" dir="ltr">01776213676</b>
+							<button class="donate-copy-button" id="donate-copy-number" type="button">নম্বর কপি</button>
+						</div>
+						<p class="donate-wallet-note">পাঠানোর আগে অ্যাপে প্রাপকের নাম মিলিয়ে নিন।</p>
+					</div>
+					<p class="donate-caption">পেমেন্টের পর TrxID-সহ তথ্য জমা দিন।</p>
+				</div>
+				<div class="donate-tab-panel" id="donate-panel-expat" role="tabpanel" aria-labelledby="donate-tab-expat" hidden>
+					<div class="donate-remit-card">
+						<strong>প্রবাস থেকে ব্যাংক ট্রান্সফার</strong>
+						<p>ইসলামী ব্যাংক, ঝালকাঠি শাখা</p>
+						<p>হিসাবের নাম: <b class="donate-remit-value">MD SHFIKUL ISLAM</b></p>
+						<p>অ্যাকাউন্ট নম্বর: >20507770214086143</p>
+						<span class="donate-placeholder-label">সঠিক অ্যাকাউন্ট নম্বর যোগ না হওয়া পর্যন্ত এই মাধ্যমে টাকা পাঠাবেন না।</span>
+					</div>
+					<p class="donate-warning">প্রবাসী ট্রান্সফারের তথ্য সম্পূর্ণ হলে এই অপশন চালু করা হবে।</p>
+				</div>
+				<button class="button button-green" id="donate-next" type="button">আমি ডোনেট করেছি</button>
+			</section>
+			<section class="donate-form-step" id="donate-form-step" hidden aria-labelledby="donate-form-title">
+				<h3 id="donate-form-title">ধন্যবাদ! তথ্যটি দিন</h3>
+				<p class="donate-description">জমা দেওয়া তথ্য শুধু এডমিন দেখতে পারবেন। এটি পেমেন্ট সম্পন্ন হওয়ার স্বয়ংক্রিয় প্রমাণ নয়।</p>
+				<form id="donation-form" class="donate-form">
+					<label class="field-label" for="donation-amount">পরিমাণ (৳) *
+						<input class="field" id="donation-amount" name="amount" type="number" min="1" max="1000000" step="0.01" inputmode="decimal" placeholder="যেমন 500" required>
+					</label>
+					<label class="field-label" for="donation-method">যে মাধ্যমে পাঠিয়েছেন *
+						<select class="field" id="donation-method" name="paymentMethod" required>
+							<option value="bkash">bKash</option>
+							<option value="nagad">নগদ</option>
+							<option value="upay">upay</option>
+							<option value="rocket">রকেট</option>
+						</select>
+					</label>
+					<label class="field-label" for="donation-trx">TrxID (যদি থাকে)
+						<input class="field" id="donation-trx" name="trxId" maxlength="100" autocomplete="off" placeholder="লেনদেনের TrxID">
+					</label>
+					<fieldset class="donate-name-choice">
+						<legend>আপনার নাম প্রকাশ করবো?</legend>
+						<label><input type="radio" name="showName" value="public" checked> নাম প্রকাশ করুন</label>
+						<label><input type="radio" name="showName" value="anonymous"> নাম প্রকাশে অনিচ্ছুক</label>
+						<p class="field-hint">এখন donor list চালু নেই। এই পছন্দটি শুধু ভবিষ্যৎ donor-list visibility হিসেবে সংরক্ষিত হবে; বর্তমানে সব তথ্য শুধু এডমিন দেখবেন।</p>
+					</fieldset>
+					<label class="field-label" id="donor-name-label" for="donor-name">আপনার নাম *
+						<input class="field" id="donor-name" name="donorName" maxlength="100" autocomplete="name" placeholder="আপনার নাম" required>
+					</label>
+					<p class="status donate-status" id="donate-status" role="status" aria-live="polite"></p>
+					<div class="donate-form-actions">
+						<button class="button button-green" id="donation-submit" type="submit">জমা দিন</button>
+						<button class="button button-light" id="donate-back" type="button">ফিরে যান</button>
+					</div>
+				</form>
+			</section>
+			<button class="donate-close" id="donate-close" type="button">বন্ধ করুন</button>
+		</div>
+	</dialog>
+	<script type="module" src="app.js"></script>
+</body>
+</html>
