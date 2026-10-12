@@ -497,6 +497,8 @@ async function initializeLogin(auth) {
 				"auth/popup-closed-by-user": "Google login সম্পন্ন হয়নি। আবার চেষ্টা করুন।",
 				"auth/popup-blocked": "Browser popup আটকে দিয়েছে। popup অনুমতি দিয়ে আবার চেষ্টা করুন।",
 				"auth/operation-not-allowed": "Firebase Authentication-এ Google provider চালু করুন।",
+				"auth/unauthorized-domain": "এই ওয়েবসাইটের domain Firebase-এ অনুমোদিত নয়। Firebase Console → Authentication → Settings → Authorized domains-এ সাইটের hostname যোগ করুন।",
+				"auth/network-request-failed": "Google login-এ নেটওয়ার্ক সমস্যা হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
 				"auth/account-exists-with-different-credential": "এই email-এ অন্য পদ্ধতিতে account আছে। সেই পদ্ধতিতে লগইন করুন।"
 			};
 			setStatus(messages[error?.code] || displayError(error, "Google দিয়ে লগইন করা যায়নি। আবার চেষ্টা করুন।"), true);

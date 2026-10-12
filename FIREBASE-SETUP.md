@@ -11,7 +11,7 @@ The app uses email/password and Google Authentication for regular visitors, emai
 ## 2. Enable visitor sign-in
 
 1. In **Authentication → Sign-in method**, enable **Email/Password** and **Google**.
-2. In **Authentication → Settings → Authorized domains**, add the hostname used to open this site, such as `localhost`, and the production hostname before deployment. For this repository's GitHub Pages site, add `hmdshfikulislam-commits.github.io`.
+2. In **Authentication → Settings → Authorized domains**, add the hostname used to open this site, such as `localhost` or `127.0.0.1` for local testing, and the production hostname before deployment. Add only the hostname (no `http://`, port, or path). For this repository's GitHub Pages site, add `hmdshfikulislam-commits.github.io`.
 3. Serve the files from an HTTP(S) web server. Do not open `index.html` as a `file://` URL. A VS Code Live Server extension is suitable for local testing; use HTTPS for a deployed site.
 4. Configure the Google provider's support email and authorized domains in Firebase Authentication.
 
@@ -19,7 +19,7 @@ The app uses email/password and Google Authentication for regular visitors, emai
 
 1. Keep **Email/Password** enabled in **Authentication → Sign-in method**. Public registration is available to regular visitors, but do not create an administrator registration form.
 2. In **Authentication → Users**, create the administrator account for `hmdshfikulislam@gmail.com` with a strong, unique password. This exact, email-verified address is the only account authorized by the client and published Firestore and Storage rules.
-3. Open `admin/login.html` through the deployed site (or `/admin/login.html` locally) and sign in with that account. If its email is not verified, the page sends a verification email and signs out; follow the link, then sign in again.
+3. Open `admin/admin-hmd-3676.html` through the deployed site (or `/admin/admin-hmd-3676.html` locally) and sign in with that account. If its email is not verified, the page sends a verification email and signs out; follow the link, then sign in again.
 
 ## 4. Create Firestore and Storage
 
@@ -41,7 +41,7 @@ Lost/found location pickers use the Bangladesh geocode JSON dataset bundled at `
 
 ## 5. Publish the administrator authorization
 
-The administrator is restricted to the email-verified Firebase Authentication account whose exact email is `hmdshfikulislam@gmail.com`. The published Firestore and Storage rules enforce this check; no Firestore allowlist document is needed. The static `/admin/login.html` and `/admin/index.html` pages use client-side routing for convenience, but the rules—not page visibility—protect private records and moderation actions. Visitors use email/password or Google sign-in; phone/OTP authentication is not used.
+The administrator is restricted to the email-verified Firebase Authentication account whose exact email is `hmdshfikulislam@gmail.com`. The published Firestore and Storage rules enforce this check; no Firestore allowlist document is needed. The static `/admin/admin-hmd-3676.html` and `/admin/index.html` pages use client-side routing for convenience, but the rules—not page visibility—protect private records and moderation actions. Visitors use email/password or Google sign-in; phone/OTP authentication is not used.
 
 Firebase Authentication applies its own abuse protections and throttling. The login page also adds a per-browser cooldown after repeated failures as a usability deterrent; local browser storage can be cleared or bypassed, so this is not a security boundary. A global/IP-based lockout requires server-side enforcement, which this static-only site does not have.
 
@@ -57,7 +57,9 @@ GitHub Pages deployment is configured in `.github/workflows/deploy-pages.yml`. P
 
 The Android launcher opens the deployed site in an Android Custom Tab. This keeps Firebase Authentication and Google sign-in in the real browser; an internet connection is required, and the app displays the current deployed website rather than an offline copy.
 
-1. Push the Android project and `.github/workflows/build-apk.yml` to GitHub.
-2. Open the repository's **Actions → Build Android APK** workflow and select **Run workflow**. Changes under `android/` also start a build when pushed.
-3. When the run succeeds, open it, download the `amar-aponjon-android-debug` artifact ZIP, and extract `app-debug.apk`.
-4. Install the APK on Android. This is a debug-signed APK for direct testing/sideloading, not a Play Store release.
+The APK workflow builds the native Android project directly with Gradle; it does not need Node.js, npm, Capacitor, or a checked-in Gradle wrapper.
+
+1. Push `.github/workflows/build-apk.yml` and the `android/` project to the repository's `main` branch. The workflow starts automatically when either changes.
+2. Alternatively, open **Actions → Build Android APK** and select **Run workflow**.
+3. Wait for the run to succeed, open the run, and download the `amar-aponjon-android-debug` artifact ZIP. Extract `app-debug.apk` from the ZIP.
+4. Install the APK on Android. This is a debug-signed APK for direct testing/sideloading, not a Play Store release. GitHub Actions artifacts are temporary and retained for 14 days; run the workflow again after expiry.
