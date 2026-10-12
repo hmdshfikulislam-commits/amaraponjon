@@ -8,21 +8,13 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn()
         && request.auth.token.email_verified == true
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.email
-          == request.auth.token.email;
-    }
-
-    match /admins/{userId} {
-      allow get: if signedIn() && request.auth.uid == userId;
-      allow list, create, update, delete: if false;
+        && request.auth.token.email == 'hmdshfikulislam@gmail.com';
     }
 
     match /posts/{postId} {
       allow read: if isAdmin()
-        || (signedIn()
-          && (resource.data.verified == true
-            || resource.data.createdBy == request.auth.uid));
+        || resource.data.verified == true
+        || (signedIn() && resource.data.createdBy == request.auth.uid);
 
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly([

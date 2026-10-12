@@ -2,12 +2,12 @@ import {
 	createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged,
 	sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword,
 	signInWithPopup, signOut
-} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-	addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, serverTimestamp,
+	addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, serverTimestamp,
 	setDoc, Timestamp, updateDoc, where
-} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { initializeLocationPicker } from "./location-picker.js";
 
 const page = document.body.dataset.page;
@@ -15,6 +15,7 @@ const pageStatus = document.getElementById("page-status") || document.getElement
 let firebase;
 let firebaseInitializationError = null;
 let currentUser = null;
+const adminEmail = "hmdshfikulislam@gmail.com";
 
 function setStatus(message, isError = false) {
 	if (!pageStatus) return;
@@ -33,11 +34,8 @@ function displayError(error, fallback) {
 	return fallback;
 }
 
-async function isAdmin(user) {
-	if (!user || !user.email || !user.emailVerified) return false;
-	const adminSnapshot = await getDoc(doc(firebase.db, "admins", user.uid));
-	return adminSnapshot.exists()
-		&& adminSnapshot.data().email === user.email;
+function isAdmin(user) {
+	return Boolean(user?.emailVerified && user.email === adminEmail);
 }
 
 function redirectToLogin() {
@@ -632,7 +630,7 @@ async function loadPendingPosts(user, authorizedAdmin) {
 	}
 
 	setStatus("যাচাইয়ের অপেক্ষায় থাকা বিজ্ঞপ্তি লোড হচ্ছে...");
-	const pendingQuery = query(collection(firebase.db, "posts"), where("verified", "==", false), limit(100));
+	const pendingQuery = query(collection(firebase.db, "posts"), where("verified", "==", false));
 	const snapshot = await getDocs(pendingQuery);
 	const posts = snapshot.docs.map((postDoc) => ({ id: postDoc.id, ...postDoc.data() }));
 	posts.sort((a, b) => createdAtMillis(a) - createdAtMillis(b));
@@ -677,6 +675,11 @@ async function loadPendingPosts(user, authorizedAdmin) {
 				});
 				wrapper.remove();
 				if (pendingCount) pendingCount.textContent = String(list.children.length);
+				const publishedCount = document.getElementById("published-count");
+				if (publishedCount && /^\d+$/.test(publishedCount.textContent)) {
+					publishedCount.textContent = String(Number(publishedCount.textContent) + 1);
+				}
+				void loadPublishedPosts(true);
 				setStatus("বিজ্ঞপ্তিটি প্রকাশ করা হয়েছে।");
 				if (!list.children.length) setStatus("যাচাইয়ের অপেক্ষায় কোনো বিজ্ঞপ্তি নেই।");
 			} catch (error) {
@@ -686,39 +689,110 @@ async function loadPendingPosts(user, authorizedAdmin) {
 		});
 		actions.append(approve);
 
-		if (!passedAutoCheck) {
-			const reject = document.createElement("button");
-			reject.type = "button";
-			reject.className = "button button-danger";
-			reject.textContent = "বিজ্ঞপ্তি মুছে দিন";
-			reject.addEventListener("click", async () => {
-				if (!window.confirm("এই বিজ্ঞপ্তিটি স্থায়ীভাবে মুছে ফেলবেন?")) return;
-				reject.disabled = true;
-				setStatus("বিজ্ঞপ্তিটি মুছে ফেলা হচ্ছে...");
-				try {
-					if (post.imagePath) await deleteObject(ref(firebase.storage, post.imagePath));
-					await deleteDoc(doc(firebase.db, "posts", post.id));
-					wrapper.remove();
-					if (pendingCount) pendingCount.textContent = String(list.children.length);
-					setStatus(list.children.length ? "বিজ্ঞপ্তিটি মুছে ফেলা হয়েছে।" : "যাচাইয়ের অপেক্ষায় কোনো বিজ্ঞপ্তি নেই।");
-				} catch (error) {
-					reject.disabled = false;
-					setStatus(displayError(error, "বিজ্ঞপ্তিটি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।"), true);
-				}
-			});
-			actions.append(reject);
-		}
+		const remove = document.createElement("button");
+		remove.type = "button";
+		remove.className = "button button-danger";
+		remove.textContent = "বিজ্ঞপ্তি মুছে দিন";
+		remove.addEventListener("click", async () => {
+			if (!window.confirm("এই বিজ্ঞপ্তিটি স্থায়ীভাবে মুছে ফেলবেন?")) return;
+			remove.disabled = true;
+			setStatus("বিজ্ঞপ্তিটি মুছে ফেলা হচ্ছে...");
+			try {
+				if (post.imagePath) await deleteObject(ref(firebase.storage, post.imagePath));
+				await deleteDoc(doc(firebase.db, "posts", post.id));
+				wrapper.remove();
+				if (pendingCount) pendingCount.textContent = String(list.children.length);
+				setStatus(list.children.length ? "বিজ্ঞপ্তিটি মুছে ফেলা হয়েছে।" : "যাচাইয়ের অপেক্ষায় কোনো বিজ্ঞপ্তি নেই।");
+			} catch (error) {
+				remove.disabled = false;
+				setStatus(displayError(error, "বিজ্ঞপ্তিটি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।"), true);
+			}
+		});
+		actions.append(remove);
 		wrapper.append(actions);
 		list.append(wrapper);
 	}
 	setStatus(`${posts.length}টি বিজ্ঞপ্তি যাচাইয়ের অপেক্ষায় আছে।`);
 }
 
+async function loadPublishedPosts(authorizedAdmin) {
+	const list = document.getElementById("published-list");
+	const status = document.getElementById("published-admin-status");
+	const publishedCount = document.getElementById("published-count");
+	if (!list || !status) return;
+	if (!authorizedAdmin) {
+		status.textContent = "শুধু অনুমোদিত এডমিন প্রকাশিত বিজ্ঞপ্তি পরিচালনা করতে পারবেন।";
+		status.classList.add("error");
+		return;
+	}
+
+	status.textContent = "প্রকাশিত বিজ্ঞপ্তি লোড হচ্ছে...";
+	status.classList.remove("error");
+	try {
+		const publishedQuery = query(collection(firebase.db, "posts"), where("verified", "==", true));
+		const snapshot = await getDocs(publishedQuery);
+		const posts = snapshot.docs.map((postDoc) => ({ id: postDoc.id, ...postDoc.data() }));
+		posts.sort((a, b) => createdAtMillis(b) - createdAtMillis(a));
+		list.replaceChildren();
+		if (publishedCount) publishedCount.textContent = String(posts.length);
+
+		if (!posts.length) {
+			status.textContent = "এখনো কোনো বিজ্ঞপ্তি প্রকাশ করা হয়নি।";
+			return;
+		}
+
+		for (const post of posts) {
+			const wrapper = document.createElement("article");
+			wrapper.className = "admin-card admin-card-published";
+			wrapper.append(makePostCard(post));
+
+			const publishedStatus = document.createElement("p");
+			publishedStatus.className = "admin-screening-status passed";
+			publishedStatus.textContent = "✅ এডমিন যাচাই করে প্রকাশ করেছেন";
+			wrapper.append(publishedStatus);
+
+			const actions = document.createElement("div");
+			actions.className = "admin-actions";
+			const remove = document.createElement("button");
+			remove.type = "button";
+			remove.className = "button button-danger";
+			remove.textContent = "বিজ্ঞপ্তি মুছে দিন";
+			remove.addEventListener("click", async () => {
+				if (!window.confirm("এই প্রকাশিত বিজ্ঞপ্তিটি স্থায়ীভাবে মুছে ফেলবেন?")) return;
+				remove.disabled = true;
+				status.textContent = "বিজ্ঞপ্তিটি মুছে ফেলা হচ্ছে...";
+				status.classList.remove("error");
+				try {
+					if (post.imagePath) await deleteObject(ref(firebase.storage, post.imagePath));
+					await deleteDoc(doc(firebase.db, "posts", post.id));
+					wrapper.remove();
+					if (publishedCount) publishedCount.textContent = String(list.children.length);
+					status.textContent = list.children.length
+						? "বিজ্ঞপ্তিটি মুছে ফেলা হয়েছে।"
+						: "এখনো কোনো বিজ্ঞপ্তি প্রকাশ করা হয়নি।";
+				} catch (error) {
+					remove.disabled = false;
+					status.textContent = displayError(error, "বিজ্ঞপ্তিটি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।");
+					status.classList.add("error");
+				}
+			});
+			actions.append(remove);
+			wrapper.append(actions);
+			list.append(wrapper);
+		}
+		status.textContent = `${posts.length}টি প্রকাশিত বিজ্ঞপ্তি।`;
+	} catch (error) {
+		status.textContent = displayError(error, "প্রকাশিত বিজ্ঞপ্তি লোড করা যায়নি। Firebase Security Rules ও সংযোগ পরীক্ষা করুন।");
+		status.classList.add("error");
+	}
+}
+
 async function loadDonations(authorizedAdmin) {
 	const list = document.getElementById("donation-list");
+	const summary = document.getElementById("donation-summary");
 	const status = document.getElementById("donation-admin-status");
 	const donationCount = document.getElementById("donation-count");
-	if (!list || !status) return;
+	if (!list || !status || !summary) return;
 	if (!authorizedAdmin) {
 		status.textContent = "শুধু অনুমোদিত এডমিন ডোনেশন তথ্য দেখতে পারবেন।";
 		status.classList.add("error");
@@ -726,11 +800,67 @@ async function loadDonations(authorizedAdmin) {
 	}
 
 	status.textContent = "ডোনেশন তথ্য লোড হচ্ছে...";
+	status.classList.remove("error");
 	try {
-		const donationsQuery = query(collection(firebase.db, "donations"), orderBy("createdAt", "desc"), limit(100));
+		const donationsQuery = query(collection(firebase.db, "donations"), orderBy("createdAt", "desc"));
 		const snapshot = await getDocs(donationsQuery);
 		list.replaceChildren();
+		summary.replaceChildren();
 		if (donationCount) donationCount.textContent = String(snapshot.size);
+
+		const paymentMethods = {
+			bkash: { label: "bKash", className: "bkash" },
+			nagad: { label: "নগদ", className: "nagad" },
+			rocket: { label: "রকেট", className: "rocket" },
+			upay: { label: "upay", className: "upay" },
+			"bd-qr": { label: "দেশ থেকে (QR)", className: "other" },
+			expat: { label: "প্রবাস ব্যাংক", className: "other" }
+		};
+		const totals = new Map(
+			["bkash", "nagad", "rocket", "upay"].map((key) => [
+				key,
+				{ ...paymentMethods[key], count: 0, amount: 0 }
+			])
+		);
+		for (const donationDoc of snapshot.docs) {
+			const donation = donationDoc.data();
+			const methodKey = typeof donation.paymentMethod === "string" ? donation.paymentMethod : "";
+			const method = paymentMethods[methodKey] || { label: "অন্যান্য", className: "other" };
+			const key = paymentMethods[methodKey] ? methodKey : "other";
+			const amount = typeof donation.amount === "number" && Number.isFinite(donation.amount) && donation.amount >= 0
+				? donation.amount
+				: 0;
+			const current = totals.get(key) || { ...method, count: 0, amount: 0 };
+			current.count += 1;
+			current.amount += amount;
+			totals.set(key, current);
+		}
+
+		const formatAmount = (amount) => `৳${new Intl.NumberFormat("bn-BD", {
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 2
+		}).format(amount)}`;
+		for (const [key, details] of totals) {
+			const card = document.createElement("article");
+			card.className = `donation-method-summary ${details.className}`;
+			const badge = document.createElement("span");
+			badge.className = `donation-method-badge ${details.className}`;
+			badge.textContent = details.label;
+			const totalLabel = document.createElement("span");
+			totalLabel.className = "donation-method-total-label";
+			totalLabel.textContent = "জমা দেওয়া মোট";
+			const total = document.createElement("strong");
+			total.className = "donation-method-total";
+			total.textContent = formatAmount(details.amount);
+			const count = document.createElement("span");
+			count.className = "donation-method-count";
+			count.textContent = `${details.count}টি রেকর্ড`;
+			card.append(badge, totalLabel, total, count);
+			card.dataset.method = key;
+			summary.append(card);
+		}
+		summary.hidden = false;
+
 		if (snapshot.empty) {
 			status.textContent = "এখনো কোনো ডোনেশন তথ্য জমা হয়নি।";
 			return;
@@ -740,33 +870,38 @@ async function loadDonations(authorizedAdmin) {
 			const donation = donationDoc.data();
 			const card = document.createElement("article");
 			card.className = "donation-admin-card";
+			const methodKey = typeof donation.paymentMethod === "string" ? donation.paymentMethod : "";
+			const method = paymentMethods[methodKey] || { label: "অন্যান্য", className: "other" };
 			const heading = document.createElement("h3");
 			heading.textContent = donation.showName === "public" && donation.donorName
 				? donation.donorName
 				: "নাম প্রকাশে অনিচ্ছুক";
 			const details = document.createElement("div");
 			details.className = "donation-admin-details";
-			appendDetail(details, "পরিমাণ", `৳${donation.amount}`);
-			const paymentMethodNames = {
-				"bd-qr": "দেশ থেকে (QR)",
-				expat: "প্রবাস থেকে",
-				bkash: "bKash",
-				nagad: "নগদ",
-				upay: "upay",
-				rocket: "রকেট"
-			};
-			appendDetail(details, "পেমেন্ট মাধ্যম", paymentMethodNames[donation.paymentMethod] || donation.paymentMethod);
+			const amount = typeof donation.amount === "number" && Number.isFinite(donation.amount) && donation.amount >= 0
+				? donation.amount
+				: 0;
+			appendDetail(details, "জমা দেওয়া পরিমাণ", formatAmount(amount));
+			const methodBadge = document.createElement("span");
+			methodBadge.className = `donation-method-badge ${method.className}`;
+			methodBadge.textContent = method.label;
+			const methodDetail = document.createElement("p");
+			methodDetail.className = "donation-admin-method";
+			methodDetail.append("পেমেন্ট মাধ্যম: ", methodBadge);
+			details.append(methodDetail);
 			appendDetail(details, "Email", donation.donorEmail);
 			appendDetail(details, "TrxID", donation.trxId);
 			appendDetail(details, "অবস্থা", donation.status === "pending" ? "যাচাই অপেক্ষমাণ" : donation.status);
 			card.append(heading, details);
 			list.append(card);
 		});
-		status.textContent = `${snapshot.size}টি ডোনেশন রেকর্ড (সর্বোচ্চ ১০০টি)`;
+		status.textContent = `${snapshot.size}টি ডোনেশন রেকর্ড`;
 	} catch (error) {
 		console.error("Could not load donation records", error);
 		status.textContent = displayError(error, "ডোনেশন তথ্য লোড করা যায়নি।");
 		status.classList.add("error");
+		summary.replaceChildren();
+		summary.hidden = true;
 	}
 }
 
@@ -795,9 +930,36 @@ async function start() {
 		return;
 	}
 
+	const logoutButton = document.getElementById("logout-button");
+	if (logoutButton) {
+		logoutButton.addEventListener("click", async () => {
+			try {
+				await signOut(firebase.auth);
+				location.replace(page === "admin" ? "login.html" : "index.html");
+			} catch (error) {
+				setStatus(displayError(error, "লগআউট করা যায়নি। আবার চেষ্টা করুন।"), true);
+			}
+		});
+	}
+
 	onAuthStateChanged(firebase.auth, async (user) => {
 		currentUser = user;
 		if (!user) {
+			if (["home", "search", "details"].includes(page)) {
+				const loginLink = document.getElementById("login-link");
+				const adminLink = document.getElementById("admin-link");
+				if (loginLink) loginLink.hidden = false;
+				if (logoutButton) logoutButton.hidden = true;
+				if (adminLink) adminLink.hidden = true;
+				if (page === "home") {
+					try {
+						await loadVerifiedPosts();
+					} catch (error) {
+						setStatus(displayError(error, "তথ্য লোড করা যায়নি। Firebase Security Rules ও সংযোগ পরীক্ষা করুন।"), true);
+					}
+				}
+				return;
+			}
 			redirectToLogin();
 			return;
 		}
@@ -808,17 +970,9 @@ async function start() {
 			const adminAuthorized = await isAdmin(user);
 			const adminLink = document.getElementById("admin-link");
 			if (adminLink) adminLink.hidden = !adminAuthorized;
-			const logoutButton = document.getElementById("logout-button");
-			if (logoutButton) {
-				logoutButton.addEventListener("click", async () => {
-					try {
-						await signOut(firebase.auth);
-						location.replace("login.html");
-					} catch (error) {
-						setStatus(displayError(error, "লগআউট করা যায়নি। আবার চেষ্টা করুন।"), true);
-					}
-				});
-			}
+			const loginLink = document.getElementById("login-link");
+			if (loginLink) loginLink.hidden = true;
+			if (logoutButton) logoutButton.hidden = false;
 
 			if (page === "home") await loadVerifiedPosts();
 			if (page === "report-lost" || page === "report-found") await submitReport(user);
@@ -827,8 +981,11 @@ async function start() {
 					location.replace("login.html");
 					return;
 				}
-				await loadPendingPosts(user, true);
-				await loadDonations(true);
+				await Promise.all([
+					loadPendingPosts(user, true),
+					loadPublishedPosts(true),
+					loadDonations(true)
+				]);
 			}
 		} catch (error) {
 			setStatus(displayError(error, "তথ্য লোড করা যায়নি। Firebase Security Rules ও সংযোগ পরীক্ষা করুন।"), true);

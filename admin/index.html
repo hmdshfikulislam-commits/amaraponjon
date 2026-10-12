@@ -36,6 +36,12 @@
 				<strong class="admin-stat-value" id="pending-count">—</strong>
 				<span class="admin-stat-foot">বিজ্ঞপ্তি পর্যালোচনা করুন <span aria-hidden="true">→</span></span>
 			</a>
+			<a class="admin-stat-card admin-stat-published" href="#published-section">
+				<span class="admin-stat-icon" aria-hidden="true">●</span>
+				<span class="admin-stat-label">প্রকাশিত বিজ্ঞপ্তি</span>
+				<strong class="admin-stat-value" id="published-count">—</strong>
+				<span class="admin-stat-foot">প্রকাশিত পোস্ট পরিচালনা করুন <span aria-hidden="true">→</span></span>
+			</a>
 			<a class="admin-stat-card admin-stat-donations" href="#donations-section">
 				<span class="admin-stat-icon" aria-hidden="true">♡</span>
 				<span class="admin-stat-label">ডোনেশন রেকর্ড</span>
@@ -62,6 +68,18 @@
 			<p class="status" id="page-status" aria-live="polite">যাচাইয়ের অপেক্ষায় থাকা বিজ্ঞপ্তি লোড হচ্ছে...</p>
 			<div class="admin-list" id="pending-list"></div>
 		</section>
+		<section class="list-section admin-section admin-published-section" id="published-section" aria-labelledby="published-title">
+			<div class="section-heading">
+				<div>
+					<p class="admin-section-kicker">PUBLISHED REPORTS</p>
+					<h2 id="published-title">প্রকাশিত বিজ্ঞপ্তি</h2>
+					<p>প্রকাশিত পোস্টগুলো দেখুন অথবা প্রয়োজনে মুছে দিন।</p>
+				</div>
+				<span class="admin-section-icon admin-section-icon-green" aria-hidden="true">●</span>
+			</div>
+			<p class="status" id="published-admin-status" aria-live="polite">প্রকাশিত বিজ্ঞপ্তি লোড হচ্ছে...</p>
+			<div class="admin-list" id="published-list"></div>
+		</section>
 		<section class="list-section admin-section admin-donations-section" id="donations-section" aria-labelledby="donations-title">
 			<div class="section-heading">
 				<div>
@@ -72,6 +90,8 @@
 				<span class="admin-section-icon admin-section-icon-green" aria-hidden="true">♡</span>
 			</div>
 			<p class="status" id="donation-admin-status" aria-live="polite">ডোনেশন তথ্য লোড হচ্ছে...</p>
+			<p class="donation-summary-note">নিচের হিসাবগুলো দাতাদের জমা দেওয়া তথ্য; ব্যাংক বা মোবাইল ব্যাংকিং স্টেটমেন্টের সঙ্গে মিলিয়ে প্রকৃত প্রাপ্তি নিশ্চিত করুন।</p>
+			<div class="donation-summary-grid" id="donation-summary" aria-label="পেমেন্ট মাধ্যম অনুযায়ী ডোনেশন সারসংক্ষেপ"></div>
 			<div class="admin-list" id="donation-list"></div>
 		</section>
 	</main>
