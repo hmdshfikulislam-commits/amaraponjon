@@ -1,16 +1,10 @@
 name: Build Android APK
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - "android/**"
-      - ".github/workflows/build-apk.yml"
-  workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -19,12 +13,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "17"
-          cache: gradle
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -37,16 +37,29 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.9"
+          gradle-version: '8.9'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Add and sync Capacitor Android
+        run: |
+          npm install @capacitor/cli @capacitor/core @capacitor/android --save
+          npx cap add android || true
+          npx cap copy android
+          npx cap sync android
 
       - name: Build debug APK
         working-directory: android
-        run: gradle :app:assembleDebug
+        run: gradle app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: amar-aponjon-android-debug
+          name: amar-aponjon-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
