@@ -16,6 +16,7 @@ let firebase;
 let firebaseInitializationError = null;
 let currentUser = null;
 const adminEmail = "hmdshfikulislam@gmail.com";
+const firestoreRequestTimeoutMs = 15_000;
 
 function setStatus(message, isError = false) {
 	if (!pageStatus) return;
@@ -77,13 +78,36 @@ function initializeNavigation() {
 
 function displayError(error, fallback) {
 	console.error(fallback, error);
+	if (error?.code === "app/network-timeout") {
+		return error.message;
+	}
 	if (error && ["permission-denied", "unauthorized"].includes(error.code)) {
 		return "এই কাজের অনুমতি নেই। অ্যাকাউন্ট ও Firebase Security Rules যাচাই করুন।";
 	}
 	if (error && ["unavailable", "network-request-failed"].includes(error.code)) {
-		return "ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।";
+		return "ইন্টারনেট সংযোগ এবং Firebase project-এ Cloud Firestore API ও database চালু আছে কি না যাচাই করে আবার চেষ্টা করুন।";
+	}
+	if (error?.code === "failed-precondition") {
+		return "Firestore database/index প্রস্তুত নয়। Firebase Console-এ database ও প্রয়োজনীয় index তৈরি করুন।";
+	}
+	if (error?.code === "not-found") {
+		return "Firestore database পাওয়া যায়নি। Firebase Console-এ এই project-এর Cloud Firestore database তৈরি করুন।";
 	}
 	return fallback;
+}
+
+function waitForFirestore(promise, action) {
+	let timeoutId;
+	const timeout = new Promise((resolve, reject) => {
+		timeoutId = window.setTimeout(() => {
+			const error = new Error(
+				`Firebase Firestore থেকে ${action} ১৫ সেকেন্ডে সম্পন্ন হয়নি। ইন্টারনেট, Cloud Firestore API, database ও Security Rules যাচাই করুন।`
+			);
+			error.code = "app/network-timeout";
+			reject(error);
+		}, firestoreRequestTimeoutMs);
+	});
+	return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timeoutId));
 }
 
 function isAdmin(user) {
@@ -92,7 +116,7 @@ function isAdmin(user) {
 
 function redirectToLogin() {
 	if (page === "admin") {
-		location.replace("login.html");
+		location.replace("admin-hmd-3676.html");
 		return;
 	}
 	const next = `${location.pathname.split("/").pop()}${location.search}`;
@@ -189,7 +213,7 @@ async function loadVerifiedPosts() {
 		orderBy("createdAt", "desc"),
 		limit(100)
 	);
-	const snapshot = await getDocs(postsQuery);
+	const snapshot = await waitForFirestore(getDocs(postsQuery), "বিজ্ঞপ্তি লোড");
 	const posts = snapshot.docs
 		.map((postDoc) => ({ id: postDoc.id, ...postDoc.data() }))
 		.sort((a, b) => createdAtMillis(b) - createdAtMillis(a));
@@ -550,7 +574,7 @@ async function getRecentSubmissionWarning(user) {
 		where("createdAt", ">=", cutoff),
 		limit(2)
 	);
-	const recentSnapshot = await getDocs(recentQuery);
+	const recentSnapshot = await waitForFirestore(getDocs(recentQuery), "সাম্প্রতিক জমার তথ্য যাচাই");
 	return recentSnapshot.size >= 2
 		? "১০ মিনিটে একই account থেকে ২টির বেশি বিজ্ঞপ্তি জমা পড়েছে"
 		: "";
@@ -1101,7 +1125,7 @@ async function start() {
 			if (page === "report-lost" || page === "report-found") await submitReport(user);
 			if (page === "admin") {
 				if (!adminAuthorized) {
-					location.replace("login.html");
+					location.replace("admin-hmd-3676.html");
 					return;
 				}
 				initializeAdminHelpMessages();

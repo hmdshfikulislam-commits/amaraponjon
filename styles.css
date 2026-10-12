@@ -2579,6 +2579,18 @@ body[data-page="home"] .nav-links .nav-donate-link:hover {
 	color: #125b3e;
 }
 
+body[data-page="home"] .nav-links .nav-admin-login-link {
+	border: 1px solid #d7e3f2;
+	background: #f1f6fd;
+	color: #2858a2;
+}
+
+body[data-page="home"] .nav-links .nav-admin-login-link:hover {
+	border-color: #bfd1e8;
+	background: #e4eefb;
+	color: #214b8c;
+}
+
 body[data-page="home"] .menu-toggle {
 	border-color: #dce4f0;
 	border-radius: 12px;

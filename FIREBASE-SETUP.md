@@ -5,6 +5,7 @@ The app uses email/password and Google Authentication for regular visitors, emai
 ## 1. Create a Firebase project and web app
 
 1. The registered Firebase project is `amaraponjon-ebd3e`; verify that the matching Web app config in `firebase-config.js` is current. Use the exact `storageBucket` shown in the console; older projects may use a bucket ending in `appspot.com`.
+2. In the linked Google Cloud project, make sure **Cloud Firestore API** (`firestore.googleapis.com`) is enabled. If the site reports `SERVICE_DISABLED`, enable it in [Google Cloud Console](https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=amaraponjon-ebd3e) and wait for the change to take effect.
 3. The web API key in this file is a public client identifier, not an admin secret. Do not put service-account keys or private server credentials in this project.
 
 ## 2. Enable visitor sign-in
@@ -22,11 +23,13 @@ The app uses email/password and Google Authentication for regular visitors, emai
 
 ## 4. Create Firestore and Storage
 
-1. Create a Cloud Firestore database.
+1. In Firebase Console → **Firestore Database**, create a Cloud Firestore database in the `amaraponjon-ebd3e` project if one does not already exist.
 2. Create the default Cloud Storage bucket and ensure Storage is linked to the project's default Firestore database so Storage Rules can check report ownership and verification.
 3. In **Firestore → Rules**, publish the contents of `firestore.rules`.
 4. In **Storage → Rules**, publish the contents of `storage.rules`.
-5. When Firestore offers to create the composite index for the verified-post query, create it (`verified` ascending, `createdAt` descending).
+5. Create these composite indexes in **Firestore → Indexes**:
+   - `posts`: `verified` ascending, `createdAt` descending (public verified-post list).
+   - `posts`: `createdBy` ascending, `createdAt` ascending (recent-submission check).
 
 The homepage and verified reports (including their photos) are publicly readable without signing in. A signed-in user can submit an unverified report and read their own report. The `report-lost.html` and `report-found.html` pages redirect visitors to login before allowing submission. Every new report stays unverified until an admin approves it. In the Admin panel, reports that pass the client-side checks appear in green; reports with any check issue appear in red with the reason. All pending reports can be reviewed, approved, or deleted; the separate published-reports list lets an admin review and delete published posts. These browser-side checks and the client-provided `pendingReason` are untrusted review hints, not security validation or automatic approval; admins must review each report before approving it. Only the verified account for `hmdshfikulislam@gmail.com` can read pending reports, approve reports, delete reports, or read donation records. No public-user deletion feature is provided; Firestore rules deny all other data access by default. Storage limits report photos to image files up to 5 MB.
 
