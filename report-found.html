@@ -8,12 +8,25 @@
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="report-found">
-	<header class="site-header">
-		<a class="brand" href="index.html">
-			<img src="logo%20(2).png" alt="">
-			<span class="brand-name">আমার আপনজন</span>
-		</a>
-		<a class="text-link" href="index.html">হোমে ফিরুন</a>
+	<header class="main-navbar">
+		<div class="nav-container">
+			<a class="brand" href="index.html#home" aria-label="আমার আপনজন হোম">
+				<img src="logo%20(2).png" alt="">
+				<span class="brand-name">আমার আপনজন</span>
+			</a>
+			<button class="menu-toggle" id="menu-toggle" type="button" aria-label="মেনু খুলুন" aria-controls="primary-navigation" aria-expanded="false">
+				<span aria-hidden="true">☰</span>
+			</button>
+			<nav class="primary-navigation" id="primary-navigation" aria-label="প্রধান মেনু">
+				<ul class="nav-links">
+					<li><a href="index.html#home" data-nav-target="home">হোম পেজ</a></li>
+					<li><a href="index.html#missing" data-nav-target="missing">নিখোঁজ ব্যক্তি</a></li>
+					<li><a href="index.html#found" data-nav-target="found">পাওয়া গেছে</a></li>
+					<li><a href="index.html#help" data-nav-target="help">সাহায্য</a></li>
+					<li><a class="nav-donate-link" href="index.html#donate" data-donate-navigation>ডোনেট</a></li>
+				</ul>
+			</nav>
+		</div>
 	</header>
 	<main class="form-layout">
 		<section class="form-intro">
@@ -86,6 +99,7 @@
 			</form>
 		</section>
 	</main>
+	<script src="help-center.js" defer></script>
 	<script type="module" src="app.js"></script>
 </body>
 </html>

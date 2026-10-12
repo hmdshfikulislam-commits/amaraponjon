@@ -8,15 +8,28 @@
 	<link rel="stylesheet" href="../styles.css">
 </head>
 <body data-page="admin">
-	<header class="site-header">
-		<a class="brand" href="../index.html">
-			<img src="../logo%20(2).png" alt="">
-			<span class="brand-name">আমার আপনজন</span>
-		</a>
-		<div class="account">
-			<span class="account-email" id="account-email"></span>
-			<a class="button button-light" href="../index.html">হোম পেজ</a>
-			<button class="button button-light" id="logout-button" type="button">লগআউট</button>
+	<header class="main-navbar">
+		<div class="nav-container">
+			<a class="brand" href="../index.html#home" aria-label="আমার আপনজন হোম">
+				<img src="../logo%20(2).png" alt="">
+				<span class="brand-name">আমার আপনজন</span>
+			</a>
+			<button class="menu-toggle" id="menu-toggle" type="button" aria-label="মেনু খুলুন" aria-controls="primary-navigation" aria-expanded="false">
+				<span aria-hidden="true">☰</span>
+			</button>
+			<nav class="primary-navigation" id="primary-navigation" aria-label="প্রধান মেনু">
+				<ul class="nav-links">
+					<li><a href="../index.html#home" data-nav-target="home">হোম পেজ</a></li>
+					<li><a href="../index.html#missing" data-nav-target="missing">নিখোঁজ ব্যক্তি</a></li>
+					<li><a href="../index.html#found" data-nav-target="found">পাওয়া গেছে</a></li>
+					<li><a href="../index.html#help" data-nav-target="help">সাহায্য</a></li>
+					<li><a class="nav-donate-link" href="../index.html#donate" data-donate-navigation>ডোনেট</a></li>
+				</ul>
+				<div class="account nav-account">
+					<span class="account-email" id="account-email"></span>
+					<button class="button button-light" id="logout-button" type="button">লগআউট</button>
+				</div>
+			</nav>
 		</div>
 	</header>
 	<main class="home-main">
@@ -94,7 +107,20 @@
 			<div class="donation-summary-grid" id="donation-summary" aria-label="পেমেন্ট মাধ্যম অনুযায়ী ডোনেশন সারসংক্ষেপ"></div>
 			<div class="admin-list" id="donation-list"></div>
 		</section>
+		<section class="list-section admin-section admin-help-section" id="help-messages-section" aria-labelledby="help-messages-title">
+			<div class="section-heading">
+				<div>
+					<p class="admin-section-kicker">LOCAL BROWSER MESSAGES</p>
+					<h2 id="help-messages-title">💬 হেল্প সেন্টার মেসেজ</h2>
+					<p>এই ব্রাউজারে সংরক্ষিত বার্তাগুলোই এখানে দেখা যাবে; অন্য ডিভাইসের বার্তা এখানে আসবে না।</p>
+				</div>
+				<button class="button button-light admin-help-refresh" id="help-messages-refresh" type="button">রিফ্রেশ</button>
+			</div>
+			<p class="status" id="help-messages-status" role="status" aria-live="polite">হেল্প সেন্টারের বার্তা লোড হচ্ছে...</p>
+			<div class="admin-help-list" id="adminHelpList"></div>
+		</section>
 	</main>
+	<script src="../help-center.js" defer></script>
 	<script type="module" src="../app.js"></script>
 </body>
 </html>

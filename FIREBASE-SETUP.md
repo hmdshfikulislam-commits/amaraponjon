@@ -49,3 +49,12 @@ Open the project through a local HTTP server (for example, VS Code Live Server) 
 GitHub Pages deployment is configured in `.github/workflows/deploy-pages.yml`. Push to `main` or run the workflow manually from **Actions → Deploy site to GitHub Pages**. In the repository's **Settings → Pages**, set **Build and deployment → Source** to **GitHub Actions**. The project site URL is `https://hmdshfikulislam-commits.github.io/amaraponjon/`. Add `hmdshfikulislam-commits.github.io` to Firebase Authentication's Authorized domains and publish `firestore.rules` and `storage.rules` in the Firebase Console before using sign-in, reports, moderation, photo uploads, or donation records on the live site.
 
 `firebase-config.js` contains only the Firebase Web app configuration; access control is enforced by `firestore.rules` and `storage.rules`, not by hiding the client config. Review Firebase's current pricing and quotas before deploying Storage.
+
+## 7. Build the Android APK
+
+The Android launcher opens the deployed site in an Android Custom Tab. This keeps Firebase Authentication and Google sign-in in the real browser; an internet connection is required, and the app displays the current deployed website rather than an offline copy.
+
+1. Push the Android project and `.github/workflows/build-apk.yml` to GitHub.
+2. Open the repository's **Actions → Build Android APK** workflow and select **Run workflow**. Changes under `android/` also start a build when pushed.
+3. When the run succeeds, open it, download the `amar-aponjon-android-debug` artifact ZIP, and extract `app-debug.apk`.
+4. Install the APK on Android. This is a debug-signed APK for direct testing/sideloading, not a Play Store release.

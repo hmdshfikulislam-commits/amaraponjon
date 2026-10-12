@@ -23,6 +23,58 @@ function setStatus(message, isError = false) {
 	pageStatus.classList.toggle("error", isError);
 }
 
+function initializeNavigation() {
+	const menuToggle = document.getElementById("menu-toggle");
+	const navigation = document.getElementById("primary-navigation");
+	if (!menuToggle || !navigation) return;
+
+	const navLinks = navigation.querySelectorAll(".nav-links a");
+	function setMenuOpen(isOpen) {
+		menuToggle.setAttribute("aria-expanded", String(isOpen));
+		menuToggle.setAttribute("aria-label", isOpen ? "মেনু বন্ধ করুন" : "মেনু খুলুন");
+		navigation.classList.toggle("show", isOpen);
+	}
+
+	function updateActiveLink() {
+		const section = location.hash.slice(1);
+		const activeTarget = ["home", "missing", "found", "help"].includes(section)
+			? section
+			: page === "report-lost" ? "missing"
+				: page === "report-found" ? "found"
+					: page === "home" ? "home" : "";
+		navLinks.forEach((link) => {
+			const isActive = link.dataset.navTarget === activeTarget;
+			link.classList.toggle("active", isActive);
+			if (isActive) link.setAttribute("aria-current", "page");
+			else link.removeAttribute("aria-current");
+		});
+	}
+
+	menuToggle.addEventListener("click", () => {
+		setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+	});
+	navLinks.forEach((link) => link.addEventListener("click", () => setMenuOpen(false)));
+	document.querySelectorAll("[data-donate-navigation]").forEach((link) => {
+		link.addEventListener("click", (event) => {
+			const dialog = document.getElementById("donate-dialog");
+			const openButton = document.getElementById("donate");
+			if (dialog instanceof HTMLDialogElement && openButton) {
+				event.preventDefault();
+				setMenuOpen(false);
+				openButton.click();
+			}
+		});
+	});
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && menuToggle.getAttribute("aria-expanded") === "true") {
+			setMenuOpen(false);
+			menuToggle.focus();
+		}
+	});
+	window.addEventListener("hashchange", updateActiveLink);
+	updateActiveLink();
+}
+
 function displayError(error, fallback) {
 	console.error(fallback, error);
 	if (error && ["permission-denied", "unauthorized"].includes(error.code)) {
@@ -905,11 +957,82 @@ async function loadDonations(authorizedAdmin) {
 	}
 }
 
+function initializeAdminHelpMessages() {
+	const list = document.getElementById("adminHelpList");
+	const status = document.getElementById("help-messages-status");
+	const refreshButton = document.getElementById("help-messages-refresh");
+	if (!list || !status || !refreshButton) return;
+
+	function loadHelpMessages() {
+		let messages;
+		try {
+			const storedMessages = localStorage.getItem("helpMessages");
+			messages = storedMessages === null ? [] : JSON.parse(storedMessages);
+		} catch (error) {
+			console.error("Could not read local help messages", error);
+			status.textContent = "এই ব্রাউজারে সংরক্ষিত হেল্প মেসেজ পড়া যায়নি।";
+			status.classList.add("error");
+			list.replaceChildren();
+			return;
+		}
+
+		if (!Array.isArray(messages)) {
+			status.textContent = "সংরক্ষিত হেল্প মেসেজের তথ্য সঠিক নয়।";
+			status.classList.add("error");
+			list.replaceChildren();
+			return;
+		}
+
+		const validMessages = messages.filter((message) =>
+			message !== null && typeof message === "object" && !Array.isArray(message)
+		);
+		list.replaceChildren();
+		if (!validMessages.length) {
+			status.textContent = messages.length
+				? "সংরক্ষিত মেসেজের তথ্য পড়া যাচ্ছে না।"
+				: "এই ব্রাউজারে এখনো কোনো হেল্প মেসেজ সংরক্ষিত নেই।";
+			status.classList.toggle("error", messages.length > 0);
+			return;
+		}
+
+		const textOrFallback = (value, fallback) => typeof value === "string" && value.trim()
+			? value
+			: fallback;
+		for (const message of [...validMessages].reverse()) {
+			const card = document.createElement("article");
+			card.className = "admin-help-card";
+			const heading = document.createElement("h3");
+			heading.textContent = textOrFallback(message.name, "নাম দেয়নি");
+			const details = document.createElement("p");
+			details.className = "admin-help-meta";
+			details.textContent = `${textOrFallback(message.phone, "নাম্বার দেয়নি")} · ${textOrFallback(message.time, "সময় উল্লেখ নেই")}`;
+			const body = document.createElement("p");
+			body.className = "admin-help-message";
+			body.textContent = textOrFallback(message.message, "বার্তার লেখা নেই");
+			card.append(heading, details, body);
+			list.append(card);
+		}
+
+		status.classList.remove("error");
+		status.textContent = messages.length === validMessages.length
+			? `${validMessages.length}টি হেল্প মেসেজ—এই ব্রাউজারের local storage থেকে দেখানো হচ্ছে।`
+			: `${validMessages.length}টি হেল্প মেসেজ দেখানো হচ্ছে; কিছু সংরক্ষিত রেকর্ড পড়া যায়নি।`;
+		if (messages.length !== validMessages.length) status.classList.add("error");
+	}
+
+	refreshButton.addEventListener("click", loadHelpMessages);
+	window.addEventListener("storage", (event) => {
+		if (event.key === "helpMessages" || event.key === null) loadHelpMessages();
+	});
+	loadHelpMessages();
+}
+
 async function start() {
 	const submissionNotice = document.getElementById("submission-notice");
 	if (submissionNotice && new URLSearchParams(location.search).get("submitted") === "1") {
 		submissionNotice.hidden = false;
 	}
+	initializeNavigation();
 	initializeDonateModal();
 
 	try {
@@ -981,6 +1104,7 @@ async function start() {
 					location.replace("login.html");
 					return;
 				}
+				initializeAdminHelpMessages();
 				await Promise.all([
 					loadPendingPosts(user, true),
 					loadPublishedPosts(true),
@@ -995,7 +1119,7 @@ async function start() {
 
 function initializeDonateModal() {
 	const dialog = document.getElementById("donate-dialog");
-	const openButton = document.getElementById("donate-open");
+	const openButton = document.getElementById("donate");
 	const methodStep = document.getElementById("donate-method-step");
 	const donationStep = document.getElementById("donate-form-step");
 	const nextButton = document.getElementById("donate-next");
@@ -1158,6 +1282,7 @@ function initializeDonateModal() {
 			dialog.close();
 		}
 	});
+	if (location.hash === "#donate") openButton.click();
 	dialog.addEventListener("close", () => openButton.focus());
 	syncDonorName();
 	selectTab(tabs[0]);

@@ -9,36 +9,72 @@
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="home">
-	<header class="site-header">
-		<a class="brand" href="index.html" aria-label="আমার আপনজন হোম">
-			<img src="logo%20(2).png" alt="">
-			<span class="brand-name">আমার আপনজন</span>
-		</a>
-		<div class="account">
-			<span class="account-email" id="account-email"></span>
-			<a class="button button-light" href="login.html" id="login-link">লগইন</a>
-			<a class="button button-light" href="admin/index.html" id="admin-link" hidden>এডমিন প্যানেল</a>
-			<button class="button button-light" id="logout-button" type="button" hidden>লগআউট</button>
+	<header class="main-navbar">
+		<div class="nav-container">
+			<a class="brand" href="#home" aria-label="আমার আপনজন হোম">
+				<img src="logo%20(2).png" alt="">
+				<span class="brand-name">আমার আপনজন</span>
+			</a>
+			<button class="menu-toggle" id="menu-toggle" type="button" aria-label="মেনু খুলুন" aria-controls="primary-navigation" aria-expanded="false">
+				<span aria-hidden="true">☰</span>
+			</button>
+			<nav class="primary-navigation" id="primary-navigation" aria-label="প্রধান মেনু">
+				<ul class="nav-links">
+					<li><a href="#home" data-nav-target="home">হোম পেজ</a></li>
+					<li><a href="#missing" data-nav-target="missing">নিখোঁজ ব্যক্তি</a></li>
+					<li><a href="#found" data-nav-target="found">পাওয়া গেছে</a></li>
+					<li><a href="#help" data-nav-target="help">সাহায্য</a></li>
+					<li><a class="nav-donate-link" href="#donate" data-donate-navigation>ডোনেট</a></li>
+				</ul>
+				<div class="account nav-account">
+					<span class="account-email" id="account-email"></span>
+					<a class="button button-light" href="login.html" id="login-link">লগইন</a>
+					<a class="button button-light" href="admin/index.html" id="admin-link" hidden>এডমিন প্যানেল</a>
+					<button class="button button-light" id="logout-button" type="button" hidden>লগআউট</button>
+				</div>
+			</nav>
 		</div>
 	</header>
 
 	<main class="home-main">
-		<section class="hero">
+		<section class="hero" id="home">
 			<img class="hero-logo" src="logo%20(2).png" alt="দুই হাত ও ভাঙা হৃদয়ের লোগো">
 			<p class="hero-eyebrow">মানবিক সহায়তায়, আপনজনের খোঁজে</p>
 			<h1>আমার আপনজন</h1>
 			<p class="hero-copy">হারিয়ে যাওয়া মানুষকে খুঁজে পেতে, অথবা কাউকে খুঁজে পেলে তার পরিবারের কাছে ফিরিয়ে দিতে একসাথে এগিয়ে আসুন।</p>
 		</section>
 
+		<section class="app-download" aria-labelledby="app-download-title">
+			<div class="app-download-brand">
+				<span class="app-download-icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" focusable="false">
+						<path d="M7 2.8 8.2 5M17 2.8 15.8 5M5.2 8.2h13.6v9.1a1.8 1.8 0 0 1-1.8 1.8H7a1.8 1.8 0 0 1-1.8-1.8V8.2Zm0 2.1H3.8v5.3h1.4m13.6-5.3h1.4v5.3h-1.4M9 19.1v2.1m6-2.1v2.1M9 11.2v.1m6-.1v.1" />
+					</svg>
+				</span>
+				<img class="app-download-logo" src="logo%20(2).png" alt="আমার আপনজন লোগো" width="48" height="48" loading="lazy">
+			</div>
+			<div class="app-download-copy">
+				<p class="app-download-kicker">ANDROID অ্যাপ</p>
+				<h2 id="app-download-title">আমার আপনজন অ্যাপটি ডাউনলোড করুন</h2>
+				<p>APK পেতে GitHub Actions-এ সফল build-এর artifact ডাউনলোড করুন।</p>
+			</div>
+			<a class="app-download-button" href="https://github.com/hmdshfikulislam-commits/amaraponjon/actions/workflows/build-apk.yml" target="_blank" rel="noopener noreferrer">
+				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+					<path d="M12 3v11m0 0 4-4m-4 4-4-4M5 16v3h14v-3" />
+				</svg>
+				<span>APK পেতে এগিয়ে যান</span>
+			</a>
+		</section>
+
 		<nav class="action-grid" aria-label="বিজ্ঞপ্তি দিন">
-			<a class="action-card lost" href="report-lost.html">
+			<a class="action-card lost" id="missing" href="report-lost.html">
 				<span class="action-icon" aria-hidden="true">♡</span>
 				<span>
 					<h2 class="action-title">হারানো বিজ্ঞপ্তি দিন</h2>
 					<p class="action-caption">আপনজনকে খুঁজে পেতে তথ্য শেয়ার করুন</p>
 				</span>
 			</a>
-			<a class="action-card found" href="report-found.html">
+			<a class="action-card found" id="found" href="report-found.html">
 				<span class="action-icon" aria-hidden="true">⌕</span>
 				<span>
 					<h2 class="action-title">খুঁজে পাওয়া বিজ্ঞপ্তি</h2>
@@ -47,7 +83,7 @@
 			</a>
 		</nav>
 
-		<section class="list-section" aria-labelledby="list-title">
+		<section class="list-section" id="recent-notices" aria-labelledby="list-title">
 			<div class="section-heading">
 				<div>
 					<h2 id="list-title">সাম্প্রতিক বিজ্ঞপ্তি</h2>
@@ -62,9 +98,19 @@
 			<p class="status" id="list-status" aria-live="polite">বিজ্ঞপ্তি লোড হচ্ছে...</p>
 			<div class="post-grid" id="post-list"></div>
 		</section>
+		<section class="help-section" id="help" aria-labelledby="help-title">
+			<h2 id="help-title">কীভাবে সাহায্য করবেন?</h2>
+			<p>হারানো বা খুঁজে পাওয়া ব্যক্তির তথ্য দিন, যাচাইকৃত বিজ্ঞপ্তি ছড়িয়ে দিন, অথবা হেল্প সেন্টারে বার্তা লিখুন। বার্তা শুধু এই ব্রাউজারে সংরক্ষিত হবে।</p>
+			<div class="help-links">
+				<a href="report-lost.html">নিখোঁজ ব্যক্তির তথ্য দিন</a>
+				<a href="report-found.html">খুঁজে পাওয়া ব্যক্তির তথ্য দিন</a>
+				<a href="#help-center" data-help-open>হেল্প সেন্টারে বার্তা লিখুন</a>
+				<a href="#donate" data-donate-navigation>ডোনেট করুন</a>
+			</div>
+		</section>
 		<footer class="footer">মানবিক সহায়তায়, আপনজনের খোঁজে।</footer>
 	</main>
-	<button class="donate-trigger" id="donate-open" type="button" aria-haspopup="dialog" aria-controls="donate-dialog">
+	<button class="donate-trigger" id="donate" type="button" aria-haspopup="dialog" aria-controls="donate-dialog" aria-label="ডোনেশন উইন্ডো খুলুন">
 		<span aria-hidden="true">♥</span> Donate করুন
 	</button>
 	<dialog class="donate-dialog" id="donate-dialog" aria-labelledby="donate-title" aria-describedby="donate-description">
@@ -162,6 +208,7 @@
 			<button class="donate-close" id="donate-close" type="button">বন্ধ করুন</button>
 		</div>
 	</dialog>
+	<script src="help-center.js" defer></script>
 	<script type="module" src="app.js"></script>
 </body>
 </html>
