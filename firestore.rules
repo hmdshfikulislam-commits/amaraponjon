@@ -20,10 +20,14 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           "type", "name", "age", "address", "lastSeen", "dress", "desc",
           "currentLocation", "foundLocation", "location",
-          "imagePath", "createdBy", "createdAt", "verified",
+          "imagePath", "imageDataUrl", "createdBy", "createdAt", "verified",
           "lastSeenLocation", "foundLocationDetails", "currentLocationDetails",
           "pendingReason"
         ])
+        && (!("imageDataUrl" in request.resource.data)
+          || (request.resource.data.imageDataUrl is string
+            && request.resource.data.imageDataUrl.size() <= 850000
+            && request.resource.data.imageDataUrl.matches("^data:image/jpeg;base64,[A-Za-z0-9+/]+={0,2}$")))
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.createdAt == request.time
         && request.resource.data.verified == false;

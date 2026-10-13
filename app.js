@@ -7,7 +7,7 @@ import {
 	addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, serverTimestamp,
 	setDoc, Timestamp, updateDoc, where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { deleteObject, getDownloadURL, ref } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { initializeLocationPicker } from "./location-picker.js";
 
 const page = document.body.dataset.page;
@@ -154,7 +154,14 @@ function makePostCard(post) {
 	placeholder.setAttribute("aria-hidden", "true");
 	placeholder.textContent = "♡";
 	card.append(placeholder);
-	if (post.imagePath) {
+	if (post.imageDataUrl) {
+		const image = document.createElement("img");
+		image.className = "post-image";
+		image.src = post.imageDataUrl;
+		image.alt = post.name ? `${post.name} — ছবি` : "খুঁজে পাওয়া ব্যক্তির ছবি";
+		image.loading = "lazy";
+		placeholder.replaceWith(image);
+	} else if (post.imagePath) {
 		getDownloadURL(ref(firebase.storage, post.imagePath)).then((imageUrl) => {
 			const image = document.createElement("img");
 			image.className = "post-image";
@@ -534,6 +541,51 @@ function readImage(file) {
 	});
 }
 
+async function compressImageForFirestore(file) {
+	const objectUrl = URL.createObjectURL(file);
+	try {
+		const image = new Image();
+		image.src = objectUrl;
+		await image.decode();
+
+		for (let maxDimension = 1280; maxDimension >= 640; maxDimension = Math.floor(maxDimension * 0.75)) {
+			const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+			const canvas = document.createElement("canvas");
+			canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+			canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+			const context = canvas.getContext("2d");
+			if (!context) throw new Error("ছবিটি ছোট করা যায়নি।");
+			context.fillStyle = "#fff";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+			for (const quality of [0.82, 0.72, 0.62, 0.52, 0.42]) {
+				const blob = await new Promise((resolve, reject) => {
+					canvas.toBlob(
+						(result) => result ? resolve(result) : reject(new Error("ছবিটি ছোট করা যায়নি।")),
+						"image/jpeg",
+						quality
+					);
+				});
+				if (blob.size <= 600 * 1024) {
+					return await new Promise((resolve, reject) => {
+						const reader = new FileReader();
+						reader.addEventListener("load", () => {
+							if (typeof reader.result === "string") resolve(reader.result);
+							else reject(new Error("ছবিটি সংরক্ষণের জন্য প্রস্তুত করা যায়নি।"));
+						});
+						reader.addEventListener("error", () => reject(new Error("ছবিটি সংরক্ষণের জন্য প্রস্তুত করা যায়নি।")));
+						reader.readAsDataURL(blob);
+					});
+				}
+			}
+		}
+		throw new Error("ছবিটি যথেষ্ট ছোট করা যায়নি। ছোট ছবি নির্বাচন করে আবার চেষ্টা করুন।");
+	} finally {
+		URL.revokeObjectURL(objectUrl);
+	}
+}
+
 function getAutoCheckIssues(notice) {
 	const description = typeof notice.desc === "string" ? notice.desc : "";
 	const name = typeof notice.name === "string" ? notice.name : "";
@@ -554,7 +606,7 @@ function getAutoCheckIssues(notice) {
 
 	if (name.trim().length < 3) issues.push("নাম নেই বা অসম্পূর্ণ");
 	if (!location.trim()) issues.push("ঠিকানা/অবস্থান নেই");
-	if (!notice.imagePath) issues.push("ছবি নেই");
+	if (!notice.imagePath && !notice.imageDataUrl) issues.push("ছবি নেই");
 	if (description.trim().length < 20) issues.push("বিবরণ খুব ছোট");
 
 	const matchedWords = bannedWords.filter((word) => combinedText.includes(word.toLocaleLowerCase()));
@@ -620,7 +672,6 @@ async function submitReport(user) {
 		const submitButton = form.querySelector('button[type="submit"]');
 		submitButton.disabled = true;
 		setStatus("বিজ্ঞপ্তি জমা দেওয়া হচ্ছে...");
-		let uploadedPath = "";
 		try {
 			const formData = new FormData(form);
 			const type = page === "report-lost" ? "lost" : "found";
@@ -669,22 +720,13 @@ async function submitReport(user) {
 				if (imageFile.size > 5 * 1024 * 1024 || !imageFile.type.startsWith("image/")) {
 					throw new Error("একটি ছবি নির্বাচন করুন যার আকার ৫ MB-এর কম।");
 				}
-				uploadedPath = `post-images/${user.uid}/${postRef.id}`;
-				const imageRef = ref(firebase.storage, uploadedPath);
-				await uploadBytes(imageRef, imageFile, { contentType: imageFile.type });
-				post.imagePath = uploadedPath;
+				post.imagePath = "";
+				post.imageDataUrl = await compressImageForFirestore(imageFile);
 			}
 
 			await setDoc(postRef, post);
 			location.replace("index.html?submitted=1");
 		} catch (error) {
-			if (uploadedPath) {
-				try {
-					await deleteObject(ref(firebase.storage, uploadedPath));
-				} catch (cleanupError) {
-					console.error("Could not remove an incomplete report image", cleanupError);
-				}
-			}
 			const fallback = error instanceof Error && error.message
 				? error.message
 				: "বিজ্ঞপ্তি জমা দেওয়া যায়নি। সংযোগ ও Firebase সেটআপ পরীক্ষা করুন।";
@@ -1055,7 +1097,8 @@ function initializeAdminHelpMessages() {
 
 async function start() {
 	const submissionNotice = document.getElementById("submission-notice");
-	if (submissionNotice && new URLSearchParams(location.search).get("submitted") === "1") {
+	const submissionResult = new URLSearchParams(location.search).get("submitted");
+	if (submissionNotice && submissionResult === "1") {
 		submissionNotice.hidden = false;
 	}
 	initializeNavigation();

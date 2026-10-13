@@ -1,6 +1,6 @@
 # Firebase setup
 
-The app uses email/password and Google Authentication for regular visitors, email/password Authentication for administrators, plus Cloud Firestore and Cloud Storage. The Firebase Web app configuration is set in `firebase-config.js`; authentication, shared reports, photo uploads, and moderation still require the Firebase Console setup and published rules below.
+The app uses email/password and Google Authentication for regular visitors, email/password Authentication for administrators, plus Cloud Firestore. New report photos are compressed in the browser and saved with their Firestore report, so new submissions do not depend on Cloud Storage. Cloud Storage remains configured for photos attached to older reports.
 
 ## 1. Create a Firebase project and web app
 
@@ -24,14 +24,16 @@ The app uses email/password and Google Authentication for regular visitors, emai
 ## 4. Create Firestore and Storage
 
 1. In Firebase Console → **Firestore Database**, create a Cloud Firestore database in the `amaraponjon-ebd3e` project if one does not already exist.
-2. Create the default Cloud Storage bucket and ensure Storage is linked to the project's default Firestore database so Storage Rules can check report ownership and verification.
+2. Cloud Storage is optional for new reports. Keep the default bucket and Storage Rules if the project has older reports whose photos are stored there.
 3. In **Firestore → Rules**, publish the contents of `firestore.rules`.
-4. In **Storage → Rules**, publish the contents of `storage.rules`.
+4. If retaining Cloud Storage for older report photos, publish the contents of `storage.rules`.
 5. Create these composite indexes in **Firestore → Indexes**:
    - `posts`: `verified` ascending, `createdAt` descending (public verified-post list).
    - `posts`: `createdBy` ascending, `createdAt` ascending (recent-submission check).
 
-The homepage and verified reports (including their photos) are publicly readable without signing in. A signed-in user can submit an unverified report and read their own report. The `report-lost.html` and `report-found.html` pages redirect visitors to login before allowing submission. Every new report stays unverified until an admin approves it. In the Admin panel, reports that pass the client-side checks appear in green; reports with any check issue appear in red with the reason. All pending reports can be reviewed, approved, or deleted; the separate published-reports list lets an admin review and delete published posts. These browser-side checks and the client-provided `pendingReason` are untrusted review hints, not security validation or automatic approval; admins must review each report before approving it. Only the verified account for `hmdshfikulislam@gmail.com` can read pending reports, approve reports, delete reports, or read donation records. No public-user deletion feature is provided; Firestore rules deny all other data access by default. Storage limits report photos to image files up to 5 MB.
+The homepage and verified reports (including their photos) are publicly readable without signing in. A signed-in user can submit an unverified report and read their own report. The `report-lost.html` and `report-found.html` pages redirect visitors to login before allowing submission. Every new report stays unverified until an admin approves it. In the Admin panel, reports that pass the client-side checks appear in green; reports with any check issue appear in red with the reason. All pending reports can be reviewed, approved, or deleted; the separate published-reports list lets an admin review and delete published posts. These browser-side checks and the client-provided `pendingReason` are untrusted review hints, not security validation or automatic approval; admins must review each report before approving it. Only the verified account for `hmdshfikulislam@gmail.com` can read pending reports, approve reports, delete reports, or read donation records. No public-user deletion feature is provided; Firestore rules deny all other data access by default.
+
+New report photos (up to 5 MB before processing) are resized and converted to JPEG in the browser, then saved in the Firestore report document at up to 600 KiB. This avoids requiring Cloud Storage for new photo posts. Publish the updated `firestore.rules` to permit and size-limit these photo fields. Firestore must still be available; older reports that already use Cloud Storage continue to use that bucket for their photos.
 
 The repeated-submission check looks for two existing reports from the same account in the last 10 minutes. Create the Firestore composite index for `posts` with `createdBy` ascending and `createdAt` ascending when prompted; the report submission query needs it.
 
