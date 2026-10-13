@@ -1,52 +1,49 @@
 name: Build Android APK
-
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "android/**"
-      - ".github/workflows/build-apk.yml"
   workflow_dispatch:
-
-permissions:
-  contents: read
+  push:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
-          cache: gradle
+          java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            platforms;android-35
-            build-tools;35.0.0
+      - uses: android-actions/setup-android@v3
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
+      - name: Install dependencies
+        run: npm install
 
-      - name: Build debug APK
-        working-directory: android
-        run: gradle :app:assembleDebug
+      - name: Build web
+        run: npm run build
+
+      - name: Create Capacitor config if missing
+        run: |
+          if [ ! -f capacitor.config.json ] && [ ! -f capacitor.config.ts ]; then
+            echo '{"appId":"com.amaraponjon.app","appName":"Amar Aponjon","webDir":"dist"}' > capacitor.config.json
+          fi
+          cat capacitor.config.json
+
+      - name: Build APK
+        run: |
+          npx cap add android || true
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: amar-aponjon-android-debug
+          name: amar-aponjon-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
